@@ -1,7 +1,7 @@
 const {
-  databaseURL,
-  emailRegex,
-  secret
+    databaseURL,
+    emailRegex,
+    secret
 } = require("../config")
 
 const User = require("../models/user")
@@ -38,15 +38,15 @@ const signUpController = (req, res, next) => {
             User.create({
                 email,
                 password
-            }, function(err, newUser) {    
-            
+            }, function(err, newUser) {
+
                 if (!err) { // no error
-                    console.log("user",newUser)
+                    console.log("user", newUser)
                     let sub = Object.assign({}, newUser._doc)
-                    // delete password
+                        // delete password
                     delete sub.password;
-                    console.log("sub",sub)
-                    // sign
+                    console.log("sub", sub)
+                        // sign
                     let token = jwt.sign({
                         sub,
                         iat: new Date().getTime()
@@ -84,9 +84,9 @@ const loginController = (req, res, next) => {
         User.findOne({
             email
         }, (err, existingUser) => {
-            // errors
+            // errors handling
             if (err) return next(err);
-            // user exist
+            // user does not exist
             if (!existingUser)
                 return res.status(422).json({
                     success: false,
@@ -142,7 +142,24 @@ const loginController = (req, res, next) => {
     }
 }
 
+
+const passportSigninController = function(req, res, next) {
+    // user has been authed here,
+    // give them token
+    // assuming the middleware find the email
+    const sub = Object.assign({}, req.user._doc)
+    const token = jwt.sign({
+        sub,
+        iat: new Date().getTime()
+    }, secret)
+    res.json({
+        success: true,
+        token
+    })
+}
+
 module.exports = {
     signUpController,
-    loginController
+    loginController,
+    passportSigninController
 }
