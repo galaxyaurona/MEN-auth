@@ -120,7 +120,7 @@ const loginController = (req, res, next) => {
 
                         }
                         else { // password doesn't match
-                            return res.status(500).json({
+                            return res.status(422).json({
                                 success: false,
                                 err: "Wrong username or password"
                             })

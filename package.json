@@ -13,6 +13,7 @@
     "async": "~0.2.8",
     "bcrypt": "^1.0.2",
     "body-parser": "^1.17.2",
+    "cors": "^2.8.3",
     "dotenv": "^4.0.0",
     "express": "~3.2.4",
     "jsonwebtoken": "^7.4.1",

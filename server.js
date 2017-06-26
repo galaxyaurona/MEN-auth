@@ -9,7 +9,7 @@ const bodyParser = require("body-parser")
 const jwt = require("jsonwebtoken")
 const mongoose = require("mongoose")
 const User = require("./models/user")
-
+const cors = require('cors')
 const {
   databaseURL,
   emailRegex,
@@ -44,12 +44,14 @@ mongoose.connect(databaseURL, {}, (err) => {
 router.use(bodyParser.json({
   type: "*/*"
 }))
-
+router.use(cors())
 router.use(bodyParser.urlencoded())
 
 
 // bootstrapping default route (roots)
-require("./router").bootstrap(router)
+var apiRouter = require("./router")
+
+router.use("/api",apiRouter.router)
 
 
 
