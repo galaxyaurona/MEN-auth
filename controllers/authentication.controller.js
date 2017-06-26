@@ -41,11 +41,11 @@ const signUpController = (req, res, next) => {
             }, function(err, newUser) {
 
                 if (!err) { // no error
-                    console.log("user", newUser)
+                 
                     let sub = Object.assign({}, newUser._doc)
                         // delete password
                     delete sub.password;
-                    console.log("sub", sub)
+             
                         // sign
                     let token = jwt.sign({
                         sub,
