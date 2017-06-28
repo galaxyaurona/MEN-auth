@@ -22,7 +22,10 @@ const signUpController = (req, res, next) => {
             if (existingUser)
                 return res.status(422).json({
                     success: false,
-                    err: "User exist"
+                    err: {
+                        src: "email",
+                        msg: "This email are being used"
+                    }
                 })
 
             // user not exist
@@ -31,7 +34,10 @@ const signUpController = (req, res, next) => {
             if (!email.match(emailRegex)) {
                 return res.status(422).json({
                     success: false,
-                    err: "Invalid email"
+                    err: {
+                        src: "email",
+                        msg: "Invalid email format"
+                    }
                 })
             }
             // correct email format
@@ -41,12 +47,12 @@ const signUpController = (req, res, next) => {
             }, function(err, newUser) {
 
                 if (!err) { // no error
-                 
+
                     let sub = Object.assign({}, newUser._doc)
                         // delete password
                     delete sub.password;
-             
-                        // sign
+
+                    // sign
                     let token = jwt.sign({
                         sub,
                         iat: new Date().getTime()
@@ -70,7 +76,52 @@ const signUpController = (req, res, next) => {
     else {
         return res.status(422).json({
             success: false,
-            err: "Empty username or password"
+            err: {
+                src: "multiple",
+                msg: "Empty email or password field"
+            }
+        })
+    }
+
+
+}
+
+const checkExistingEmail = (req, res, next) => {
+
+    const email = req.body.email
+
+    if (email) { // if password and email both not null
+        // find existing email in database
+        User.findOne({
+            email
+        }, function(err, existingUser) {
+            // errors
+            if (err) return next(err);
+            // user exist
+            if (existingUser) {
+                return res.status(422).json({
+                    success: false,
+                    err: {
+                        src: "email",
+                        msg: "This email are being used"
+                    }
+                })
+            }
+            else {
+                // user not exist
+                return res.json({
+                    success: true,
+                    err: "Email is free to use"
+                })
+            }
+
+        })
+
+    }
+    else {
+        return res.status(422).json({
+            success: false,
+            err: "Empty email field supplied"
         })
     }
 
@@ -90,7 +141,10 @@ const loginController = (req, res, next) => {
             if (!existingUser)
                 return res.status(422).json({
                     success: false,
-                    err: "Email does not exist"
+                    err: {
+                        source: "email",
+                        msg: "Email does not exist"
+                    }
                 })
             else {
                 existingUser.comparePassword(password, (err, isMatch) => {
@@ -122,7 +176,10 @@ const loginController = (req, res, next) => {
                         else { // password doesn't match
                             return res.status(422).json({
                                 success: false,
-                                err: "Wrong username or password"
+                                err: {
+                                    source: "password",
+                                    msg: "Password does not match"
+                                }
                             })
                         }
                     }
@@ -137,7 +194,7 @@ const loginController = (req, res, next) => {
     else {
         return res.status(422).json({
             success: false,
-            err: "Empty username or password"
+            err: "Empty email or password"
         })
     }
 }
@@ -161,5 +218,6 @@ const passportSigninController = function(req, res, next) {
 module.exports = {
     signUpController,
     loginController,
-    passportSigninController
+    passportSigninController,
+    checkExistingEmail
 }
